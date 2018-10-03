@@ -44,6 +44,8 @@ module.exports = {
         AUTH0_CLIENT_ID: JSON.stringify("MAGICSTRING_AUTH0_CLIENT_ID"),
         AUTH0_CALLBACK_URL: JSON.stringify("MAGICSTRING_AUTH0_CALLBACK_URL"),
         AUTH0_AUDIENCE: JSON.stringify("MAGICSTRING_AUTH0_AUDIENCE"),
+        API_URL: JSON.stringify(process.env.API_URL),
+        WS_URL: JSON.stringify(process.env.WS_URL),
         CMS_URL: JSON.stringify(process.env.CMS_URL)
       }
     })

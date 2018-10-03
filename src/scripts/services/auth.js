@@ -9,7 +9,7 @@ export default class Auth {
     this.auth0 = new auth0.WebAuth({
       domain: AUTH_CONFIG.domain,
       clientID: AUTH_CONFIG.clientId,
-      redirectUri: AUTH_CONFIG.callbackUrl,
+      redirectUri: window.location.protocol + "//" + window.location.host,
       audience: AUTH_CONFIG.audience,
       responseType: "token id_token",
       scope: "openid profile"
@@ -22,12 +22,11 @@ export default class Auth {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
         window.location.reload();
-      }
-      if (err) {
+      } else if (err) {
+        this.logout();
         ErrorsActions.error(err);
-      }
-      if (!authResult) {
-        this.auth0.authorize();
+      } else {
+        this.login();
       }
     });
   }
@@ -56,7 +55,8 @@ export default class Auth {
       localStorage.removeItem("id_token");
       localStorage.removeItem("expires_at");
     }
-    UserActions.loggedOut();
+    this.auth0.logout();
+    // UserActions.loggedOut();
   }
 
   get isAuthenticated() {
