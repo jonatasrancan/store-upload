@@ -4,7 +4,7 @@ import AUTH_CONFIG from "../../config/auth0-variables";
 import UserActions from "../actions/user-actions";
 import ErrorsActions from "../components/errors/errors-actions";
 
-const tenantNameSpace = 'https://myauth0.com/tenant';
+const tenantNameSpace = "https://myauth0.com/tenant";
 
 export default class Auth {
   constructor() {
@@ -46,9 +46,16 @@ export default class Auth {
         localStorage.setItem("access_token", authResult.accessToken);
         localStorage.setItem("id_token", authResult.idToken);
         localStorage.setItem("expires_at", expiresAt);
-        localStorage.setItem("tenant", authResult.idTokenPayload[tenantNameSpace])
+        localStorage.setItem(
+          "tenant",
+          authResult.idTokenPayload[tenantNameSpace]
+        );
       }
-      UserActions.loggedIn(authResult.accessToken, authResult.idToken);
+      UserActions.loggedIn(
+        authResult.accessToken,
+        authResult.idToken,
+        authResult.idTokenPayload[tenantNameSpace]
+      );
     }
   }
 
