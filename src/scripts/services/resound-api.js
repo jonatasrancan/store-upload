@@ -6,6 +6,7 @@ const accessToken = auth.getAccessToken();
 const tenant = auth.getTenantName();
 const headers = {
   Authorization: `Bearer ${accessToken}`,
+<<<<<<< c832ff24ab9eba82ce9086756c780f676e49a96f
   "X-tenant": tenant
 };
 
