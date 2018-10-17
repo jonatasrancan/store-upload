@@ -4,12 +4,14 @@ import AUTH_CONFIG from "../../config/auth0-variables";
 import UserActions from "../actions/user-actions";
 import ErrorsActions from "../components/errors/errors-actions";
 
+const tenantNameSpace = "https://myauth0.com/tenant";
+
 export default class Auth {
   constructor() {
     this.auth0 = new auth0.WebAuth({
       domain: AUTH_CONFIG.domain,
       clientID: AUTH_CONFIG.clientId,
-      redirectUri: AUTH_CONFIG.callbackUrl,
+      redirectUri: window.location.protocol + "//" + window.location.host,
       audience: AUTH_CONFIG.audience,
       responseType: "token id_token",
       scope: "openid profile"
@@ -22,12 +24,11 @@ export default class Auth {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
         window.location.reload();
-      }
-      if (err) {
+      } else if (err) {
+        this.logout();
         ErrorsActions.error(err);
-      }
-      if (!authResult) {
-        this.auth0.authorize();
+      } else {
+        this.login();
       }
     });
   }
@@ -45,8 +46,16 @@ export default class Auth {
         localStorage.setItem("access_token", authResult.accessToken);
         localStorage.setItem("id_token", authResult.idToken);
         localStorage.setItem("expires_at", expiresAt);
+        localStorage.setItem(
+          "tenant",
+          authResult.idTokenPayload[tenantNameSpace]
+        );
       }
-      UserActions.loggedIn(authResult.accessToken, authResult.idToken);
+      UserActions.loggedIn(
+        authResult.accessToken,
+        authResult.idToken,
+        authResult.idTokenPayload[tenantNameSpace]
+      );
     }
   }
 
@@ -55,8 +64,10 @@ export default class Auth {
       localStorage.removeItem("access_token");
       localStorage.removeItem("id_token");
       localStorage.removeItem("expires_at");
+      localStorage.removeItem("tenant");
     }
-    UserActions.loggedOut();
+    this.auth0.logout();
+    // UserActions.loggedOut();
   }
 
   get isAuthenticated() {
@@ -74,6 +85,17 @@ export default class Auth {
         ErrorsActions.error("No access token found");
       }
       return accessToken;
+    }
+    return undefined;
+  }
+
+  getTenantName() {
+    if (window.localStorage) {
+      const tenantName = localStorage.getItem("tenant");
+      if (!tenantName) {
+        ErrorsActions.error("No tenant found");
+      }
+      return tenantName;
     }
     return undefined;
   }
